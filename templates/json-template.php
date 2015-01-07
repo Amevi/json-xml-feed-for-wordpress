@@ -1,41 +1,47 @@
 <?php
-function getJsonImage($num) {
+// encode images in correct format
+function encodeImage($url) {
+	$path_parts = pathinfo($url);
+	$filename = $path_parts['basename'];
+	//echo urlencode($filename);
+	return str_replace($filename,'',$url).urlencode($filename);
+}
+function getJsonImage($num) {	
+	global $post, $posts;
+	$first_img = '';
+	ob_start();
+	ob_end_clean();
+	$output = preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $post->post_content, $matches);
+	$first_img = $matches[1][0];
 
-	global $more;
-	$more = 1;
-	$content = get_the_content();
-	$count = substr_count($content, '<img');
-	$start = 0;
-	for($i=1;$i<=$count;$i++) {
-	$imgBeg = strpos($content, '<img', $start);
-	$post = substr($content, $imgBeg);
-	$imgEnd = strpos($post, '>');
-	$postOutput = substr($post, 0, $imgEnd+1);
-	$image[$i] = $postOutput;
-	$start=$imgEnd+1;  
-	 
-	$cleanF = strpos($image[$num],'src="')+5;
-	$cleanB = strpos($image[$num],'"',$cleanF)-$cleanF;
-	$imgThumb = substr($image[$num],$cleanF,$cleanB);
-	 
-}
-if(stristr($image[$num],'<img')) {
-	
-	 return $imgThumb; 
-}
-$more = 0;
+	if(empty($first_img)) {
+	$first_img = "";
+	}
+	return $first_img;
 }
 
 $callback = trim(esc_html(get_query_var('callback')));
 $charset  = get_option('charset');
 
+if ( have_posts() ) {
+	//global $wp_query;
+	$query_array = $wp_query->query;
+
+	// Make sure query args are always in the same order
+	ksort( $query_array );
+
+	$json = array();
+$i = 1;
+
+	//$temp = $wp_query; 
+	//$wp_query = null; 
+	//$wp_query = new WP_Query(); 
 	$temp = $wp_query;
 	$wp_query= null;
 	$wp_query = new WP_Query();
+	$wp_query->query('showposts=50'.'&paged='.$paged); 
 
-	$wp_query->query("showposts=$json_feed_number"."&paged=".$paged); 
-
-if ( $wp_query->have_posts()) {
+	if ($wp_query->have_posts()):
 	?>
 	<?php 
 	  
@@ -44,12 +50,14 @@ if ( $wp_query->have_posts()) {
 	$wp_query->the_post();						
 		$id = (int) $post->ID;
 		$url = getJsonImage(1);
-	
-		if(!isset($url))
+		
+				if(""==$url)
 			{
 				$url = get_post_meta($post->ID,"thumb",true);
 			}
 	
+		
+
 		$retina = false;                   
 		//$image = matthewruddy_image_resize( $url, 300, 200, true, $retina ); 
 
@@ -57,13 +65,13 @@ if ( $wp_query->have_posts()) {
 		$category_slug = wp_get_object_terms( $id, "category", array( 'fields' => 'ids' ) );
 		$single = array(
 			'id'        => $id ,
-			'title'     => get_the_title() ,
+			'title'     => htmlspecialchars_decode(get_the_title()) ,
             'link' => get_permalink(),
             'content'   => get_the_content(),
             'description'   => get_the_excerpt(),
 			'author'    => get_the_author() ,
 			'pubDate'      => get_the_date('Y-m-d H:i:s','','',false) ,
-			'image'    => $url,
+			'image'    => encodeImage($url),
 			//'category'    => $category[0]->cat_name
 			'category'    => $category_name[0],
 			'categorySlug'    => $category_slug[0]
@@ -87,17 +95,17 @@ if ( $wp_query->have_posts()) {
 		$json[] = $single;
 	endwhile;// else:
 	//end posts loop
-	$wp_query = null; $wp_query = $temp;  // Reset 
-
-	$json = json_encode($json);
+	endif; $wp_query = null; $wp_query = $temp;  // Reset 
+	$json = json_encode( $json, JSON_UNESCAPED_UNICODE ); //dealing with utf8 issue (special character)
+	//$json = json_encode($json);
 	//$json =  "{\"posts\": ".  json_encode($json). "\n}";
 
 	nocache_headers();
 	if (!empty($callback)) {
-		header("Content-Type: application/x-javascript; charset={$charset}");
+		header("Content-Type: application/x-javascript; charset=utf-8");
 		echo "{$callback}({$json});";
 	} else {
-		header("Content-Type: application/json; charset={$charset}");
+		header("Content-Type: application/json; charset=utf-8");
 		echo $json;
 		//print_r($json);
 	}
