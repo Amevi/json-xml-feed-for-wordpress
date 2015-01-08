@@ -1,5 +1,5 @@
 <?php
-// encode images in correct format
+// encode images url in correct format
 function encodeImage($url) {
 	$path_parts = pathinfo($url);
 	$filename = $path_parts['basename'];
@@ -65,7 +65,7 @@ $i = 1;
 		$category_slug = wp_get_object_terms( $id, "category", array( 'fields' => 'ids' ) );
 		$single = array(
 			'id'        => $id ,
-			'title'     => htmlspecialchars_decode(get_the_title()) ,
+			'title'     => html_entity_decode(get_the_title()) ,
             'link' => get_permalink(),
             'content'   => get_the_content(),
             'description'   => get_the_excerpt(),
