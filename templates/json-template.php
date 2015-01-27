@@ -22,7 +22,7 @@ function jxf_getJsonImage($num)
 }
 $callback = trim(esc_html(get_query_var('callback')));
 $charset  = get_option('charset');
-$posts    = query_posts('showposts=' . $xml_feed_number . '&cat=-1');
+$posts    = query_posts('showposts=' . $json_feed_number . '&cat=-1');
 if (have_posts()) {
 				//global $wp_query;
 				$query_array = $wp_query->query;
