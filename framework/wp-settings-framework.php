@@ -61,9 +61,9 @@ if( !class_exists('WordPressSettingsFramework') ){
                 return new WP_Error( 'broke', __( 'WPSF settings must be an array' ) );
             }
 
-            add_action( 'admin_init', array(&$this, 'admin_init') );
-            add_action( 'admin_notices', array(&$this, 'admin_notices') );
-            add_action( 'admin_enqueue_scripts', array(&$this, 'admin_enqueue_scripts') );
+            add_action( 'admin_init', array(&$this, 'jxf_admin_init') );
+            add_action( 'admin_notices', array(&$this, 'jxf_admin_notices') );
+            add_action( 'admin_enqueue_scripts', array(&$this, 'jxf_admin_enqueue_scripts') );
         }
 
         /**
@@ -79,16 +79,16 @@ if( !class_exists('WordPressSettingsFramework') ){
         /**
          * Registers the internal WordPress settings
          */
-        public function admin_init()
+        public function jxf_admin_init()
     	{
-    		register_setting( $this->option_group, $this->option_group .'_settings', array(&$this, 'settings_validate') );
-    		$this->process_settings();
+    		register_setting( $this->option_group, $this->option_group .'_settings', array(&$this, 'jxf_settings_validate') );
+    		$this->jxf_process_settings();
     	}
 
         /**
          * Displays any errors from the WordPress settings API
          */
-        public function admin_notices()
+        public function jxf_admin_notices()
     	{
         	settings_errors();
     	}
@@ -96,7 +96,7 @@ if( !class_exists('WordPressSettingsFramework') ){
     	/**
          * Enqueue scripts and styles
          */
-    	public function admin_enqueue_scripts()
+    	public function jxf_admin_enqueue_scripts()
     	{
             wp_enqueue_style('farbtastic');
             wp_enqueue_style('thickbox');
@@ -113,7 +113,7 @@ if( !class_exists('WordPressSettingsFramework') ){
          * @param array the un-validated settings
          * @return array the validated settings
          */
-    	public function settings_validate( $input )
+    	public function jxf_settings_validate( $input )
     	{
     		return apply_filters( $this->option_group .'_settings_validate', $input );
     	}
@@ -138,7 +138,7 @@ if( !class_exists('WordPressSettingsFramework') ){
     	/**
          * Processes $this->settings and adds the sections and fields via the WordPress settings API
          */
-    	private function process_settings()
+    	private function jxf_process_settings()
     	{
         	if( !empty($this->settings) ){
         	    usort($this->settings, array(&$this, 'sort_array'));
@@ -292,7 +292,7 @@ if( !class_exists('WordPressSettingsFramework') ){
     	/**
          * Output the settings form
          */
-        public function settings()
+        public function jxf_settings()
         {
             do_action( 'wpsf_before_settings' );
             ?>

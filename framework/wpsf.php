@@ -32,7 +32,7 @@ class WPSFTest {
 			<h2>JSON & XML Feed Settings</h2>
 			<?php
 			// Output your settings form
-			$this->wpsf->settings();
+			$this->wpsf->jxf_settings();
 			?>
 		</div>
 		<?php
