@@ -7,10 +7,10 @@ Description: Wordpress plugin for generating JSON & XML feed for wordpress posts
 Version: 1.0
 */
 
-add_action('template_redirect', 'template_redirect');
+add_action('template_redirect', 'jxf_template_redirect');
 
 //Redirect to a preferred template.
-function template_redirect() {
+function jxf_template_redirect() {
 
 	// Get settings
 	$json_feed_link = wpsf_get_setting( 'json_xml_feed_settings','general','json_feed_link' );
@@ -29,23 +29,23 @@ function template_redirect() {
 	$permalink = 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];	
 
 		if( $permalink===$json_url) {
-			json_template($json_feed_number);
+			jxf_json_template($json_feed_number);
 			
 	   
 		}else if ($permalink===$rss_url){
-			rss_template($xml_feed_number);
+			jxf_rss_template($xml_feed_number);
 		}
 	
 	
 }
-function rss_template($xml_feed_number) {
+function jxf_rss_template($xml_feed_number) {
 	$template_path = dirname( __FILE__ ) . '/templates/rss-template.php';
 	if(file_exists($template_path)){
 		include($template_path);
 	exit;
 		}
 }
-function json_template($json_feed_number) {
+function jxf_json_template($json_feed_number) {
 	
 	$template_path = dirname( __FILE__ ) . '/templates/json-template.php';
 	if(file_exists($template_path)){

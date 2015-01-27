@@ -1,12 +1,12 @@
 <?php
 // encode images url in correct format
-function encodeImage($url) {
+function jxf_encodeImage($url) {
 	$path_parts = pathinfo($url);
 	$filename = $path_parts['basename'];
 	//echo urlencode($filename);
 	return str_replace($filename,'',$url).urlencode($filename);
 }
-function getJsonImage($num) {	
+function jxf_getJsonImage($num) {	
 	global $post, $posts;
 	$first_img = '';
 	ob_start();
@@ -33,9 +33,7 @@ if ( have_posts() ) {
 	$json = array();
 $i = 1;
 
-	//$temp = $wp_query; 
-	//$wp_query = null; 
-	//$wp_query = new WP_Query(); 
+ 
 	$temp = $wp_query;
 	$wp_query= null;
 	$wp_query = new WP_Query();
@@ -46,10 +44,9 @@ $i = 1;
 	<?php 
 	  
 	while ($wp_query ->have_posts()):
-	// $post = $do_not_duplicate;
 	$wp_query->the_post();						
 		$id = (int) $post->ID;
-		$url = getJsonImage(1);
+		$url = jxf_getJsonImage(1);
 		
 				if(""==$url)
 			{
@@ -59,8 +56,6 @@ $i = 1;
 		
 
 		$retina = false;                   
-		//$image = matthewruddy_image_resize( $url, 300, 200, true, $retina ); 
-
 		$category_name = wp_get_object_terms( $id, "category", array( 'fields' => 'names' ) );
 		$category_slug = wp_get_object_terms( $id, "category", array( 'fields' => 'ids' ) );
 		$single = array(
@@ -71,8 +66,7 @@ $i = 1;
             'description'   => get_the_excerpt(),
 			'author'    => get_the_author() ,
 			'pubDate'      => get_the_date('Y-m-d H:i:s','','',false) ,
-			'image'    => encodeImage($url),
-			//'category'    => $category[0]->cat_name
+			'image'    => jxf_encodeImage($url),
 			'category'    => $category_name[0],
 			'categorySlug'    => $category_slug[0]
 			);
@@ -107,7 +101,6 @@ $i = 1;
 	} else {
 		header("Content-Type: application/json; charset=utf-8");
 		echo $json;
-		//print_r($json);
 	}
 
 } else {

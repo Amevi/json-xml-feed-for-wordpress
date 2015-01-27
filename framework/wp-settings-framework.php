@@ -71,7 +71,7 @@ if( !class_exists('WordPressSettingsFramework') ){
          *
          * @return string the "option_group"
          */
-        public function get_option_group()
+        public function jxf_get_option_group()
         {
             return $this->option_group;
         }
