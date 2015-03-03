@@ -1,4 +1,5 @@
 <?php
+global $post, $posts;
 // encode images url in correct format
 function jxf_encodeImage($url)
 {
@@ -9,15 +10,11 @@ function jxf_encodeImage($url)
 }
 function jxf_getJsonImage($num)
 {
-				global $post, $posts;
 				$first_img = '';
 				ob_start();
 				ob_end_clean();
 				$output    = preg_match_all('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $post->post_content, $matches);
 				$first_img = $matches[1][0];
-				if (empty($first_img)) {
-								$first_img = "";
-				}
 				return $first_img;
 }
 $callback = trim(esc_html(get_query_var('callback')));
@@ -39,16 +36,19 @@ if (have_posts()) {
 												the_post();
 												$id  = (int) $post->ID;
 												$url = jxf_getJsonImage(1);
-												if ("" == $url) {
+												if ($url== '') {
 																$url = get_post_meta($post->ID, "thumb", true);
 												}
 												$retina        = false;
-												$category_name = wp_get_object_terms($id, "category", array(
-																'fields' => 'names'
-												));
-												$category_slug = wp_get_object_terms($id, "category", array(
-																'fields' => 'ids'
-												));
+												// $category_name = wp_get_object_terms($id, "category", array(
+																// 'fields' => 'names'
+												// ));
+												// $category_slug = wp_get_object_terms($id, "category", array(
+																// 'fields' => 'ids'
+												// ));
+												
+												$categories = get_the_category();
+												
 												$single        = array(
 																'id' => $id,
 																'title' => html_entity_decode(get_the_title()),
@@ -58,8 +58,8 @@ if (have_posts()) {
 																'author' => get_the_author(),
 																'pubDate' => get_the_date('Y-m-d H:i:s', '', '', false),
 																'image' => jxf_encodeImage($url),
-																'category' => $category_name[0],
-																'categorySlug' => $category_slug[0]
+																'category'    => $categories[0]->cat_name,
+																'categorySlug'    => $categories[0]->slug
 												);
 												// thumbnail
 												if (function_exists('has_post_thumbnail') && has_post_thumbnail($id)) {
@@ -78,8 +78,8 @@ if (have_posts()) {
 				endif;
 				$wp_query = null;
 				$wp_query = $temp; // Reset 
-				$json     = json_encode($json, JSON_UNESCAPED_UNICODE); //dealing with utf8 issue (special character)
-				//$json = json_encode($json);
+				//$json     = json_encode($json, JSON_UNESCAPED_UNICODE); //dealing with utf8 issue (special character)
+				$json = json_encode($json);
 				//$json =  "{\"posts\": ".  json_encode($json). "\n}";
 				nocache_headers();
 				if (!empty($callback)) {
